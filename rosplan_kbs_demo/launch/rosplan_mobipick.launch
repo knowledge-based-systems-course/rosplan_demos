@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<launch>
+
+    <!-- ROSPlan kbs demo with ROSPlan -->
+
+    <!-- ROSPlan -->
+    <include file="$(find rosplan_planning_system)/launch/interfaced_planning_system.launch" >
+        <arg name="domain_path" value="$(find rosplan_kbs_demo)/common/domain_kbs_demo.pddl" />
+        <!-- load a particular initial state into KB at startup (optional) -->
+        <!-- upload initial state to KB from pddl problem file -->
+        <arg name="problem_path" value="$(find rosplan_kbs_demo)/common/initial_state_problem.pddl" />
+        <!-- automatically generated pddl problem will be created here -->
+        <arg name="autom_gen_problem_path" value="$(find rosplan_kbs_demo)/common/problem.pddl" />
+        <!-- planner will produce output plan and write to this location -->
+        <arg name="data_path" value="$(find rosplan_kbs_demo)/common/" />
+    </include>
+
+    <!-- rosplan move base action interface, makes link between rosplan dispatcher and hardware -->
+    <node pkg="rosplan_interface_kbs" type="rosplan_interface_movebase" name="rosplan_interface_movebase" respawn="false" output="screen" ns="mobipick" >
+        <param name="knowledge_base" value="rosplan_knowledge_base" />
+        <param name="pddl_action_name" value="move_base" />
+        <param name="action_dispatch_topic" value="/rosplan_plan_dispatcher/action_dispatch" />
+        <param name="action_feedback_topic" value="/rosplan_plan_dispatcher/action_feedback" />
+    </node>
+
+</launch>
