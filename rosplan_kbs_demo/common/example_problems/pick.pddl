@@ -12,7 +12,7 @@
 )
 
 (:goal (and
-    (object_at cylinder right_table)
+    (object_grasped cylinder)
 ))
 
 )

@@ -9,6 +9,7 @@
 (:init
     (robot_at mobipick start)
     (object_at cylinder left_table)
+    (static mobipick)
 )
 
 (:goal (and

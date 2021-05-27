@@ -18,34 +18,25 @@ class RPMoveBasePy(RPActionInterface):
         self.waypoint_frameid = rospy.get_param('~waypoint_frameid', 'map')
         self.wp_namespace = rospy.get_param('~wp_namespace', '/rosplan_demo_waypoints/wp')
         # instantiating Robot object
-        self.robot = robot_class.Robot(enabled_components=['navigation'])
+        self.robot = robot_class.Robot(enabled_components=['navigation', 'manipulation'])
+        # symbolic, subymbolic dictionary
+        # x, y, z, q1, q2, q3, q4
+        self.dic = {'left_table': [18.022, 4.014, 0.0, 0.0, 0.0, 1.0, 0.008],
+                    'right_table': [20.0, 8.0, 0.0, 0.0, 0.0, -0.9999762992466819, 0.006884834414179017] }
 
-    def wpIDtoPoseStamped(self, wpID):
-        result = None
-        if rospy.has_param(self.wp_namespace + '/' + wpID):
-            wp = rospy.get_param(self.wp_namespace + '/' + wpID)
-            if wp:
-                if len(wp) == 3:
-                    result = PoseStamped()
-                    result.header.frame_id = self.waypoint_frameid
-                    # result.header.stamp = rospy.Time.now()
-                    result.pose.position.x = wp[0]
-                    result.pose.position.y = wp[1]
-                    result.pose.position.z = 0.0
-
-                    q = tf.transformations.quaternion_from_euler(0, 0, wp[2])
-                    result.pose.orientation.x = q[0]
-                    result.pose.orientation.y = q[1]
-                    result.pose.orientation.z = q[2]
-                    result.pose.orientation.w = q[3]
-                else:
-                    rospy.logerr('wp size must be equal to 3 : (x, y, and theta)')
-        return result
-
-    def concreteCallback(self, msg):
+    def concreteCallback(self, action_msg):
+        symbolic_pose = None
+        for param in action_msg.parameters:
+            if param.key == 'to':
+                symbolic_pose = param.value
+        if not symbolic_pose:
+            rospy.logerr('cannot find navigation goal inside action parameters, to? key does not exist')
+            return False
+        subsymbolic_pose = self.dic[symbolic_pose]
+        # move arm to a pose within the robot footprint
+        self.robot.manipulation.go_to_pose('transport', wait=True)
         # send navigation goal
-        quaternion = [0.0, 0.0, 1.0, 0.008]
-        if self.robot.navigation.go_to_2d_pose(x=18.022, y=4.014, quaternion=quaternion, timeout=40.0):
+        if self.robot.navigation.go_to_2d_pose(x=subsymbolic_pose[0], y=subsymbolic_pose[1], quaternion=subsymbolic_pose[3:], timeout=40.0):
             rospy.loginfo('goal was achieved!')
             return True
         else:

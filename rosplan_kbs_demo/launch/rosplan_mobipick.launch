@@ -16,9 +16,35 @@
     </include>
 
     <!-- rosplan move base action interface, makes link between rosplan dispatcher and hardware -->
+
+    <!--move base-->
     <node pkg="rosplan_interface_kbs" type="rosplan_interface_movebase" name="rosplan_interface_movebase" respawn="false" output="screen" ns="mobipick" >
         <param name="knowledge_base" value="rosplan_knowledge_base" />
         <param name="pddl_action_name" value="move_base" />
+        <param name="action_dispatch_topic" value="/rosplan_plan_dispatcher/action_dispatch" />
+        <param name="action_feedback_topic" value="/rosplan_plan_dispatcher/action_feedback" />
+    </node>
+
+    <!--perceive object-->
+    <node pkg="rosplan_interface_kbs" type="rosplan_interface_perceive" name="rosplan_interface_perceive" respawn="false" output="screen" ns="mobipick" >
+        <param name="knowledge_base" value="rosplan_knowledge_base" />
+        <param name="pddl_action_name" value="perceive_object" />
+        <param name="action_dispatch_topic" value="/rosplan_plan_dispatcher/action_dispatch" />
+        <param name="action_feedback_topic" value="/rosplan_plan_dispatcher/action_feedback" />
+    </node>
+
+    <!--pick object-->
+    <node pkg="rosplan_interface_kbs" type="rosplan_interface_pick" name="rosplan_interface_pick" respawn="false" output="screen" ns="mobipick" >
+        <param name="knowledge_base" value="rosplan_knowledge_base" />
+        <param name="pddl_action_name" value="pick_object" />
+        <param name="action_dispatch_topic" value="/rosplan_plan_dispatcher/action_dispatch" />
+        <param name="action_feedback_topic" value="/rosplan_plan_dispatcher/action_feedback" />
+    </node>
+
+    <!--place object-->
+    <node pkg="rosplan_interface_kbs" type="rosplan_interface_place_object" name="rosplan_interface_place_object" respawn="false" output="screen" ns="mobipick" >
+        <param name="knowledge_base" value="rosplan_knowledge_base" />
+        <param name="pddl_action_name" value="place_object" />
         <param name="action_dispatch_topic" value="/rosplan_plan_dispatcher/action_dispatch" />
         <param name="action_feedback_topic" value="/rosplan_plan_dispatcher/action_feedback" />
     </node>

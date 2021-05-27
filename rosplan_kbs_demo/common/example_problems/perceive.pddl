@@ -12,7 +12,8 @@
 )
 
 (:goal (and
-    (object_at cylinder right_table)
+    (object_perceived cylinder)
+    ; (robot_at mobipick left_table)
 ))
 
 )
