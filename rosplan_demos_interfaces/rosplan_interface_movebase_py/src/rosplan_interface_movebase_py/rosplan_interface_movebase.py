@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import rospy, tf, actionlib
 import actionlib_msgs.msg
@@ -90,7 +90,7 @@ class RPMoveBasePy(RPActionInterface):
                 return False
         else:
             # timed out (failed)
-            self.action_client.cancelAllGoals()
+            self.action_client.cancel_all_goals()
             rospy.loginfo('KCL: ({}) action timed out'.format(self.params.name))
             return False
 
