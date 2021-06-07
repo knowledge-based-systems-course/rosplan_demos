@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<package>
+  <name>rosplan_htn_demo</name>
+  <version>1.0.0</version>
+  <description>
+    ROSPlan HTN (Hierarchical Task Network) demo with HDDL formalism
+  </description>
+
+  <maintainer email="sebastian.stock@dfki.de">Sebastian Stock</maintainer>
+  <maintainer email="oscar.lima@dfki.de">Oscar Lima</maintainer>
+
+  <license>BSD</license>
+  <url type="website">http://github.com/KCL-Planning/rosplan_demos</url>
+
+  <author email="sebastian.stock@dfki.de">Sebastian Stock</author>
+  <author email="oscar.lima@dfki.de">Oscar Lima</author>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+</package>
