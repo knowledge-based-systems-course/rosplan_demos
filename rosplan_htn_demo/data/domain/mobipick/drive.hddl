@@ -1,0 +1,31 @@
+(define (problem drive_problem)
+	
+(:domain mobipick_domain)
+
+(:objects 
+	start left_table right_table - area
+  extended - arm_posture ; "extended" arm posture is outside of the robot footprint
+  cylinder - object
+
+  ; constants
+  ; (:constants undefined_posture tucked_posture transport_posture - arm_posture)
+  ; (:constants nothing - object)
+  ; (:constants true false - boolean)
+)
+
+(:htn
+  :tasks (and (m_mobipick_drive left_table))
+  :ordering ( )
+  :constraints ( )
+)
+
+(:init 
+	(mobipick_at start)
+  ;(mobipick_holding nothing)
+  (mobipick_holding cylinder)
+  ;(mobipick_has_arm_posture transport_posture)
+  ;(mobipick_has_arm_posture tucked_posture)
+  (mobipick_has_arm_posture extended)
+) 
+
+)

@@ -1,0 +1,44 @@
+(Problem
+
+(ArgumentSymbols
+  
+  # Waypoints
+  table0_wp table1_wp
+  lab1_wp
+
+  # Areas (on tables)
+  table0_area table1_area
+
+  # Physical_objects
+  powerdrill0
+  nothing
+
+  # Arm_postures
+  tucked_posture undefined_posture transport_posture
+
+  # Grasp_postures
+  transport_grasp use_grasp
+
+  # Constant_symbols
+  true false
+  n)
+
+(Fluent f0 mobipick_at(lab1_wp))
+(Fluent f1 mobipick_holding(nothing))
+(Fluent f2 mobipick_has_arm_posture(undefined_posture))
+(Constraint Release[0,0](f0))
+(Constraint Release[0,0](f1))
+(Constraint Release[0,0](f2))
+
+(Fluent f10 on(powerdrill0 table0_area))
+(Constraint Release[0,0](f10))
+
+(Fluent f100 reachable_from(table0_area table0_wp))
+(Fluent f101 reachable_from(table1_area table1_wp))
+(Constraint Release[0,0](f100))
+(Constraint Release[0,0](f101))
+
+# Goal task
+(Task t0 mobipick_drive(table0_wp))
+
+)

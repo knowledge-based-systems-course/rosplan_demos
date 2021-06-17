@@ -1,0 +1,53 @@
+<?xml version="1.0"?>
+<launch>
+
+    <!-- mobipick primitive operators, each need an action interface
+         mobipick_move_arm WIP
+         mobipick_move_base DONE
+         mobipick_perceive_object DONE
+         mobipick_pick DONE
+         mobipick_place DONE
+         mobipick_handover_give
+         mobipick_handover_get -->
+
+    <!--move base-->
+    <node pkg="rosplan_interface_kbs" type="rosplan_interface_movebase" name="rosplan_interface_movebase" respawn="false" output="screen" ns="mobipick" >
+        <param name="knowledge_base" value="rosplan_knowledge_base" />
+        <param name="pddl_action_name" value="mobipick_move_base" />
+        <param name="action_dispatch_topic" value="/rosplan_plan_dispatcher/action_dispatch" />
+        <param name="action_feedback_topic" value="/rosplan_plan_dispatcher/action_feedback" />
+    </node>
+
+    <!--move arm-->
+    <node pkg="rosplan_interface_kbs" type="rosplan_interface_movearm" name="rosplan_interface_movearm" respawn="false" output="screen" ns="mobipick" >
+        <param name="knowledge_base" value="rosplan_knowledge_base" />
+        <param name="pddl_action_name" value="mobipick_move_arm" />
+        <param name="action_dispatch_topic" value="/rosplan_plan_dispatcher/action_dispatch" />
+        <param name="action_feedback_topic" value="/rosplan_plan_dispatcher/action_feedback" />
+    </node>
+
+    <!--perceive object-->
+    <node pkg="rosplan_interface_kbs" type="rosplan_interface_perceive" name="rosplan_interface_perceive" respawn="false" output="screen" ns="mobipick" >
+        <param name="knowledge_base" value="rosplan_knowledge_base" />
+        <param name="pddl_action_name" value="mobipick_perceive_object" />
+        <param name="action_dispatch_topic" value="/rosplan_plan_dispatcher/action_dispatch" />
+        <param name="action_feedback_topic" value="/rosplan_plan_dispatcher/action_feedback" />
+    </node>
+
+    <!--pick object-->
+    <node pkg="rosplan_interface_kbs" type="rosplan_interface_pick" name="rosplan_interface_pick" respawn="false" output="screen" ns="mobipick" >
+        <param name="knowledge_base" value="rosplan_knowledge_base" />
+        <param name="pddl_action_name" value="mobipick_pick" />
+        <param name="action_dispatch_topic" value="/rosplan_plan_dispatcher/action_dispatch" />
+        <param name="action_feedback_topic" value="/rosplan_plan_dispatcher/action_feedback" />
+    </node>
+
+    <!--place object-->
+    <node pkg="rosplan_interface_kbs" type="rosplan_interface_place_object" name="rosplan_interface_place_object" respawn="false" output="screen" ns="mobipick" >
+        <param name="knowledge_base" value="rosplan_knowledge_base" />
+        <param name="pddl_action_name" value="mobipick_place" />
+        <param name="action_dispatch_topic" value="/rosplan_plan_dispatcher/action_dispatch" />
+        <param name="action_feedback_topic" value="/rosplan_plan_dispatcher/action_feedback" />
+    </node>
+
+</launch>

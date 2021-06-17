@@ -1,0 +1,29 @@
+(define (problem adapt_arm_problem)
+	
+(:domain mobipick_domain)
+
+(:objects 
+	start left_table right_table - area
+  extended - arm_posture
+  cylinder - object
+
+  ; constants
+  ; (:constants undefined_posture tucked_posture transport_posture - arm_posture)
+  ; (:constants nothing - object)
+  ; (:constants true false - boolean)
+)
+
+(:htn
+  :tasks (and (m_mobipick_adapt_arm extended))
+  :ordering ( )
+  :constraints ( )
+)
+
+(:init 
+	(mobipick_at start)
+  (mobipick_has_arm_posture transport_posture)
+  (mobipick_holding nothing) ; not holding anything, keep orientation should be false
+  ; (mobipick_holding cylinder) ; variant: holding a cylinder, keep orientation should be true
+)
+
+)

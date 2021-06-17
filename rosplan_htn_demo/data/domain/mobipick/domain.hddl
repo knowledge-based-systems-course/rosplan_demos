@@ -1,0 +1,317 @@
+(define (domain mobipick_domain)
+
+  (:requirements
+    :typing
+  )
+
+  (:types
+    area - robot_location
+    object_area - object_location
+    arm_posture - robot_state
+    object - entity
+    grasptype - grasp_type
+    boolean - symbol
+    human - living_being
+  )
+
+  (:predicates
+    (mobipick_at ?robot_area - area)
+    (mobipick_has_arm_posture ?arm_posture - arm_posture)
+    (on ?obj - object ?obj_area - area)
+    (reachable_from ?obj_area - object_area ?mobi_wp - area)
+    (mobipick_holding ?obj - object)
+    (worker_holding ?worker - human ?obj - object)
+    (worker_at ?worker - human ?human_area - area)
+
+    ; hack, encode tasks as predicates
+    ; (mobipick_drive ?goal_wp - area)
+  )
+
+  ;(:constants ?undefined_posture ?tucked_posture ?transport_posture - arm_posture)
+  ;(:constants ?nothing - object)
+  ;(:constants true false - boolean)
+
+  ; ========== move arm
+  ; move arm primitive operator and one method used to reduce the amount of parameters that it needs
+
+  (:task m_mobipick_move_arm :parameters (?new_posture - arm_posture ?keep_gripper_orientation - boolean))
+  (:task m_mobipick_adapt_arm :parameters (?goal_posture - arm_posture))
+  (:task m_mobipick_drive :parameters (?goal_wp - area))
+  (:task m_mobipick_perceive_object :parameters (?obj - object))
+  (:task m_mobipick_pick :parameters (?obj - object ?grasptype - grasptype))
+  (:task m_mobipick_place :parameters (?obj - object ?goal_area - object_area))
+  (:task m_mobipick_handover_give :parameters (?obj - object ?worker - human))
+  (:task m_mobipick_handover_get :parameters (?obj - object ?worker - human))
+  (:task m_mobipick_get_object :parameters (?obj - object ?grasp_type - grasptype))
+  (:task m_mobipick_put_object :parameters (?obj - object ?obj_area - object_area))
+  (:task m_mobipick_move_object :parameters (?obj - object ?obj_area - object_area))
+
+  ; ===========================================================================
+  ; ========== methods
+
+  (:method m_mobipick_move_arm_1
+      :parameters (?old_arm_posture ?new_posture - arm_posture ?keep_gripper_orientation - boolean)
+      :task (m_mobipick_move_arm ?new_posture ?keep_gripper_orientation)
+      :ordered-subtasks (mobipick_move_arm ?old_arm_posture ?new_posture ?keep_gripper_orientation)
+  )
+
+  ; ========== adapt arm
+  ; helper method used by "drive" method to move the arm to a safe configuration to navigate
+
+  ; Arm is already there. ?nothing to do.
+  (:method m_mobipick_adapt_arm_1
+      :parameters (?start_posture ?goal_posture - arm_posture)
+      :task (m_mobipick_adapt_arm ?goal_posture)
+      ; :precondition (mobipick_has_arm_posture ?goal_posture)
+      :ordered-subtasks (empty)
+  )
+
+  ; Not holding an object: keep_gripper_orientation=false
+  (:method m_mobipick_adapt_arm_2
+      :parameters (?start_posture ?goal_posture - arm_posture)
+      :task (m_mobipick_adapt_arm ?goal_posture)
+      ; :precondition (and (mobipick_holding ?nothing)
+      ;                    (mobipick_has_arm_posture ?start_posture))
+      :ordered-subtasks (mobipick_move_arm ?start_posture ?goal_posture ?false)
+      ; :constraints (not (= ?start_posture ?goal_posture))
+  )
+
+  ; Holding an object: keep_gripper_orientation=true
+  (:method m_mobipick_adapt_arm_3
+      :parameters (?start_posture ?goal_posture - arm_posture ?obj - object)
+      :task (m_mobipick_adapt_arm ?goal_posture)
+      ; :precondition (and (mobipick_holding ?obj)
+      ;                    (mobipick_has_arm_posture ?start_posture))
+      :ordered-subtasks (mobipick_move_arm ?start_posture ?goal_posture ?true)
+      ; :constraints (and (not (= ?obj ?nothing))
+                        ; (not (= ?start_posture ?goal_posture)))
+  )
+
+  ; ========== drive
+  ; mobipick navigates from A to B in a safe way
+  ; that is tucking the arm or moving its arm to transport pose if holding an object
+  ; if mobipick is already there, it will do ?nothing
+
+  ; Mobipick is already there
+  (:method m_mobipick_drive_1
+      :parameters (?start_wp ?goal_wp - area)
+      :task (m_mobipick_drive ?goal_wp)
+      ; :precondition (and (mobipick_at ?goal_wp))
+      :ordered-subtasks (empty)
+  )
+
+  ; Arm is tucked or in transport posture. Only move_base.
+  (:method m_mobipick_drive_2
+      :parameters (?start_wp ?goal_wp - area)
+      :task (m_mobipick_drive ?goal_wp)
+      ; :precondition (and (mobipick_at ?start_wp)
+      ;                    (or (mobipick_has_arm_posture ?tucked_posture)
+      ;                        (mobipick_has_arm_posture ?transport_posture)))
+      :ordered-subtasks (mobipick_move_base ?start_wp ?goal_wp)
+      ; :constraints (not (= ?start_wp ?goal_wp))
+  )
+
+  ; Mobipick is holding ?nothing. -> tuck arm.
+  (:method m_mobipick_drive_3
+     :parameters (?start_wp ?goal_wp - area ?arm_posture - arm_posture)
+     :task (m_mobipick_drive ?goal_wp)
+     ; :precondition (and (mobipick_at ?start_wp)
+     ;                    (mobipick_holding ?nothing)
+     ;                    (mobipick_has_arm_posture ?arm_posture))
+     :ordered-subtasks (and (m_mobipick_adapt_arm ?tucked_posture)
+                            (mobipick_move_base ?start_wp ?goal_wp))
+     ; :constraints (and (not (= ?arm_posture ?tucked_posture))
+     ;                   (not (= ?arm_posture ?transport_posture))
+     ;                   (not (= ?start_wp ?goal_wp)))
+  )
+
+  ; Mobipick is holding an object. -> transport posture.
+  (:method m_mobipick_drive_4
+     :parameters (?start_wp ?goal_wp - area ?arm_posture - arm_posture ?obj - object)
+     :task (m_mobipick_drive ?goal_wp)
+     ; :precondition (and (mobipick_at ?start_wp)
+     ;                    (mobipick_holding ?obj)
+     ;                    (mobipick_has_arm_posture ?arm_posture))
+     :ordered-subtasks (and (m_mobipick_adapt_arm ?transport_posture)
+                            (mobipick_move_base ?start_wp ?goal_wp))
+     ; :constraints (and (not (= ?arm_posture ?tucked_posture))
+     ;                   (not (= ?arm_posture ?transport_posture))
+     ;                   (not (= ?start_wp ?goal_wp))
+     ;                   (not (= ?obj ?nothing)))
+  )
+
+  ; ========== perceive object
+  ; mobipick triggers object perception pipeline to get object class and pose
+
+  (:method m_mobipick_perceive_object_1
+      :parameters (?mobi_wp - area ?old_posture - arm_posture ?obj - object ?obj_area - object_area)
+      :task (m_mobipick_perceive_object ?obj)
+      :ordered-subtasks (mobipick_perceive_object ?mobi_wp ?old_posture ?undefined_posture ?obj ?obj_area)
+  )
+
+  ; ========== pick object
+  ; mobipick picks an object with a certain grasp type from an area
+
+  (:method m_mobipick_pick_1
+      :parameters (?mobi_wp - area ?obj - object ?from_area - object_area ?old_posture - arm_posture)
+      :task (m_mobipick_pick ?obj ?grasptype)
+      :ordered-subtasks (mobipick_pick ?mobi_wp ?obj ?from_area ?old_posture)
+  )
+
+  ; ========== place object
+  ; mobipick places an object on a goal area
+
+  (:method m_mobipick_place_1
+      :parameters (?mobi_wp - area ?obj - object ?goal_area - object_area ?old_posture - arm_posture)
+      :task (m_mobipick_place ?obj ?goal_area)
+      :ordered-subtasks (mobipick_place ?mobi_wp ?obj ?goal_area ?old_posture)
+  )
+
+  ; ========== handover give
+  ; mobipick hands over object to worker
+
+  (:method m_mobipick_handover_give_1
+      :parameters (?obj - object ?worker - human ?old_arm_posture - arm_posture ?mobi_wp - area)
+      :task (m_mobipick_handover_give ?obj ?worker)
+      :ordered-subtasks (mobipick_handover_give ?obj ?worker ?old_arm_posture ?mobi_wp)
+  )
+
+  ; ========== handover get
+  ; human hands over object to mobipick
+
+  (:method m_mobipick_handover_get_1
+      :parameters (?obj - object ?worker - human ?mobi_wp - area)
+      :task (m_mobipick_handover_get ?obj ?worker ?mobi_wp)
+      :ordered-subtasks (mobipick_handover_get ?obj ?worker ?mobi_wp)
+  )
+
+  ; ========== get object
+  ; drive, perceive and pick an object
+
+  ; ?nothing to do as we are already holding the object
+  
+  (:method m_mobipick_get_object_1
+      :parameters (?obj - object ?grasp_type - grasptype)
+      :task (m_mobipick_get_object ?obj ?grasp_type)
+      ; :precondition (mobipick_holding ?obj)
+      :ordered-subtasks (empty)
+  )
+
+  ; not holding an object
+  (:method m_mobipick_get_object_2
+      :parameters (?obj - object ?grasp_type - grasptype ?obj_area - object_area ?obj_area_wp - area)
+      :task (m_mobipick_get_object ?obj ?grasp_type)
+      ; :precondition (and (mobipick_holding ?nothing)
+      ;                    (on ?obj ?obj_area)
+      ;                    (reachable_from ?obj_area ?obj_area_wp))
+      :ordered-subtasks (and (m_mobipick_drive ?obj_area_wp)
+                             (m_mobipick_perceive_object ?obj)
+                             (m_mobipick_pick ?obj ?grasp_type))
+  )
+
+  ; ========== put object
+  ; drive and place and object that the mobipick is holding
+
+  (:method m_mobipick_put_object_1
+      :parameters (?obj - object ?obj_area - object_area ?obj_area_wp - area)
+      :task (m_mobipick_put_object ?obj ?obj_area)
+      ; :precondition (and (mobipick_holding ?obj)
+      ;                    (reachable_from ?obj_area ?obj_area_wp))
+      :ordered-subtasks (and (m_mobipick_drive ?obj_area_wp)
+                             (m_mobipick_place ?obj ?obj_area))
+  )
+
+  ; ========== move object
+  ; transport an object between 2 different locations using get and put methods
+
+  (:method m_mobipick_move_object_1
+      :parameters (?obj - object ?grasp_type - grasptype ?obj_area - object_area)
+      :task (m_mobipick_move_object ?obj ?obj_area)
+      :ordered-subtasks (and (m_mobipick_get_object ?obj ?grasp_type)
+                             (m_mobipick_put_object ?obj ?obj_area))
+  )
+
+  ; ===========================================================================
+  ; ========== primitive operators
+
+  (:action mobipick_move_arm
+    :parameters (?old_arm_posture ?new_posture - arm_posture ?keep_gripper_orientation - boolean)
+    :precondition (and (mobipick_has_arm_posture ?old_arm_posture))
+    :effect (and (not (mobipick_has_arm_posture ?old_arm_posture))
+                 (mobipick_has_arm_posture ?new_posture))
+  )
+
+  ; do not use, use m_mobipick_drive instead
+  (:action mobipick_move_base
+    :parameters (?start_wp ?goal_wp - area)
+    :precondition (and (mobipick_at ?start_wp))
+                       ; (or (mobipick_has_arm_posture ?tucked_posture)
+                       ;     (mobipick_has_arm_posture ?transport_posture)))
+    :effect (and (not (mobipick_at ?start_wp))
+                 (mobipick_at ?goal_wp))
+  )
+
+  (:action mobipick_perceive_object
+    :parameters (?mobi_wp - area ?old_posture ?new_posture - arm_posture ?obj - object ?obj_area - object_area)
+    :precondition (and (mobipick_at ?mobi_wp)
+                       (on ?obj ?obj_area)
+                       (reachable_from ?obj_area ?mobi_wp)
+                       (mobipick_has_arm_posture ?old_posture))
+    :effect (and (not (mobipick_has_arm_posture ?old_posture))
+                 (mobipick_has_arm_posture ?new_posture))
+  )
+
+  (:action mobipick_pick
+    :parameters (?mobi_wp - area ?obj - object ?from_area - object_area ?old_posture - arm_posture)
+    :precondition (and (mobipick_at ?mobi_wp)
+                       (on ?obj ?from_area)
+                       (mobipick_holding ?nothing)
+                       (mobipick_has_arm_posture ?old_posture)
+                       (reachable_from ?from_area ?mobi_wp))
+    :effect (and (not (on ?obj ?from_area))
+                 (not (mobipick_holding ?nothing))
+                 (not (mobipick_has_arm_posture ?old_posture))
+                 (mobipick_has_arm_posture ?undefined_posture)
+                 (mobipick_holding ?obj))
+  )
+
+  (:action mobipick_place
+    :parameters (?mobi_wp - area ?obj - object ?goal_area - object_area ?old_posture - arm_posture)
+    :precondition (and (mobipick_at ?mobi_wp)
+                       (reachable_from ?goal_area ?mobi_wp)
+                       (mobipick_holding ?obj)
+                       (mobipick_has_arm_posture ?old_posture))
+    :effect (and (not (mobipick_holding ?obj))
+                 (on ?obj ?goal_area)
+                 (not (mobipick_has_arm_posture ?old_posture))
+                 (mobipick_has_arm_posture ?undefined_posture)
+                 (mobipick_holding ?nothing))
+  )
+
+  (:action mobipick_handover_give
+    :parameters (?obj - object ?worker - human ?old_arm_posture - arm_posture ?mobi_wp - area)
+    :precondition (and (mobipick_at ?mobi_wp)
+                       (worker_at ?worker ?mobi_wp)
+                       (mobipick_holding ?obj)
+                       (mobipick_has_arm_posture ?old_arm_posture))
+    :effect (and (not (mobipick_holding ?obj))
+                 (not (mobipick_has_arm_posture ?old_arm_posture))
+                 (mobipick_holding ?nothing)
+                 (mobipick_has_arm_posture ?undefined_posture)
+                 (worker_holding ?worker ?obj))
+  )
+
+  (:action mobipick_handover_get
+    :parameters (?obj - object ?worker - human ?mobi_wp - area)
+    :precondition (and (mobipick_at ?mobi_wp)
+                       (worker_at ?worker ?mobi_wp)
+                       (mobipick_holding ?nothing)
+                       (worker_holding ?obj))
+    :effect (and (not (mobipick_holding ?nothing))
+                 (not (worker_holding ?obj))
+                 (mobipick_holding ?obj)
+                 (mobipick_has_arm_posture ?undefined_posture)
+                 (worker_holding ?worker ?nothing))
+  )
+
+)

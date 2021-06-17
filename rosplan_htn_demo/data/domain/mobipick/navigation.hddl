@@ -1,0 +1,27 @@
+(define (problem navigation_problem)
+	
+(:domain mobipick_domain)
+
+(:objects 
+	start left_table right_table - area
+  extended - arm_posture
+
+  ; constants
+  ; (:constants undefined_posture tucked_posture transport_posture - arm_posture)
+  ; (:constants nothing - object)
+  ; (:constants true false - boolean)
+)
+
+(:htn
+  :tasks (and (mobipick_move_base start left_table)) ; if you want to omit "start", use the method "m_mobipick_drive"
+  :ordering ( )
+  :constraints ( )
+)
+
+(:init 
+	(mobipick_at start)
+  (mobipick_has_arm_posture transport_posture)
+  ;(mobipick_has_arm_posture tucked_posture)
+) 
+
+)

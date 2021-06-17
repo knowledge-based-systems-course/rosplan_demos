@@ -1,0 +1,32 @@
+(define (problem handover_give_problem)
+	
+(:domain mobipick_domain)
+
+(:objects 
+	start left_table right_table - area
+  left_table_obj right_table_obj - object_area
+  extended - arm_posture
+  cylinder - object
+  carlos - human
+
+  ; constants
+  ; (:constants undefined_posture tucked_posture transport_posture - arm_posture)
+  ; (:constants nothing - object)
+  ; (:constants true false - boolean)
+)
+
+(:htn
+  :tasks (and ;(mobipick_handover_give cylinder carlos transport_posture))
+              (m_mobipick_handover_give cylinder carlos))
+  :ordering ( )
+  :constraints ( )
+)
+
+(:init 
+	(mobipick_at start)
+  (worker_at carlos start)
+  (mobipick_holding cylinder)
+  (mobipick_has_arm_posture transport_posture)
+)
+
+)

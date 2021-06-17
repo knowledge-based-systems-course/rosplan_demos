@@ -1,0 +1,40 @@
+(define (problem get_object_problem)
+	
+(:domain mobipick_domain)
+
+(:objects 
+	start left_table right_table - area
+  left_table_obj right_table_obj - object_area
+  extended - arm_posture
+  cylinder - object
+  carlos - human
+  side_grasp - grasptype
+
+  ; constants
+  ; (:constants undefined_posture tucked_posture transport_posture - arm_posture)
+  ; (:constants nothing - object)
+  ; (:constants true false - boolean)
+)
+
+(:htn
+  :tasks (and (m_mobipick_get_object cylinder side_grasp))
+  :ordering ( )
+  :constraints ( )
+)
+
+(:init 
+  ; robot already has the object, nothing to do
+  ; (mobipick_at start)
+  ; (worker_at carlos start)
+  ; (mobipick_holding cylinder)
+  ; (mobipick_has_arm_posture transport_posture)
+
+  (mobipick_at start)
+  (worker_at carlos start)
+  (mobipick_holding nothing)
+  (on cylinder left_table_obj)
+  (mobipick_has_arm_posture extended)
+  (reachable_from left_table_obj left_table)
+)
+
+)

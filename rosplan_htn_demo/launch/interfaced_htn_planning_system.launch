@@ -3,7 +3,7 @@
 
   <!-- :::arguments::: -->
 
-  <arg name="domain_name" default="safe_navigation"/>
+  <arg name="domain_name" default="mobipick"/>
   <!-- at the moment we need two domains. One domain for CHIMP and one pddl-version of that domain (without the method) for all other nodes (knowledge base, plan execution)-->
   <arg name="common_path" default="$(find rosplan_htn_demo)/data"/>
   <!-- hddl domain path (currently used for the knowledge base) -->

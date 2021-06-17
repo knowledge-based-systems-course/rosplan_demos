@@ -1,0 +1,32 @@
+(define (problem place_problem)
+	
+(:domain mobipick_domain)
+
+(:objects 
+	start left_table right_table - area
+  left_table_obj right_table_obj - object_area
+  extended - arm_posture
+  cylinder - object
+  side_grasp - grasptype
+
+  ; constants
+  ; (:constants undefined_posture tucked_posture transport_posture - arm_posture)
+  ; (:constants nothing - object)
+  ; (:constants true false - boolean)
+)
+
+(:htn
+  :tasks (and (m_mobipick_put_object cylinder right_table_obj))
+  :ordering ( )
+  :constraints ( )
+)
+
+(:init 
+	(mobipick_at start)
+  (mobipick_holding cylinder)
+  (mobipick_has_arm_posture transport_posture)
+  (reachable_from left_table_obj left_table)
+  (reachable_from right_table_obj right_table)
+)
+
+)

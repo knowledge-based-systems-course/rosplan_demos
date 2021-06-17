@@ -1,0 +1,35 @@
+(Problem
+
+(ArgumentSymbols
+ 
+  # Tables
+  table0 table1
+  
+  # Waypoints
+  table0_wp table1_wp
+  lab1_wp
+
+  # Areas (on tables)
+  table0_area table1_area
+
+  # Physical_objects
+  powerdrill0
+  nothing
+
+  # Grasp_postures
+  transport_grasp use_grasp
+
+  # Arm_postures
+  tucked_posture undefined_posture
+
+  # Workers
+  worker1
+
+  # Constant_symbols
+  true false
+  n)
+
+
+(Task t0 !replan())
+
+)

@@ -1,0 +1,40 @@
+(Problem
+
+(ArgumentSymbols
+ 
+  # Tables
+  table0 table1
+  
+  # Waypoints
+  table0_wp table1_wp
+  lab1_wp
+
+  # Areas (on tables)
+  table0_area table1_area
+
+  # Physical_objects
+  powerdrill0
+  nothing
+
+  # Grasp_postures
+  transport_grasp use_grasp
+
+  # Arm_postures
+  tucked_posture transport_posture undefined_posture
+
+  # Workers
+  worker1
+
+  # Constant_symbols
+  true false
+  n)
+
+(Fluent f0 mobipick_at(lab1_wp))
+(Fluent f1 mobipick_has_arm_posture(tucked_posture))
+(Constraint Release[0,0](f0))
+(Constraint Release[0,0](f1))
+
+
+(Task t0 !mobipick_move_base(table0_wp))
+
+)

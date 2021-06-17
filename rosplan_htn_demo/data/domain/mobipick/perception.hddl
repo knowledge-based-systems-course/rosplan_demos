@@ -1,0 +1,34 @@
+(define (problem perception_problem)
+	
+(:domain mobipick_domain)
+
+(:objects 
+	start left_table right_table - area
+  left_table_obj - object_area
+  extended - arm_posture
+  cylinder - object
+
+  ; constants
+  ; (:constants undefined_posture tucked_posture transport_posture - arm_posture)
+  ; (:constants nothing - object)
+  ; (:constants true false - boolean)
+)
+
+(:htn
+  :tasks (and (m_mobipick_drive left_table)
+              (m_mobipick_perceive_object cylinder))
+  :ordering ( )
+  :constraints ( )
+)
+
+(:init 
+	(mobipick_at start)
+  (mobipick_has_arm_posture extended)
+  (on cylinder left_table_obj)
+  (reachable_from left_table_obj left_table)
+
+  (mobipick_holding nothing)
+  ;(mobipick_holding cylinder)
+)
+
+)

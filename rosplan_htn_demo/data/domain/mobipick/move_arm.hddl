@@ -1,0 +1,27 @@
+(define (problem move_arm_problem)
+	
+(:domain mobipick_domain)
+
+(:objects 
+	start left_table right_table - area
+  extended - arm_posture
+
+  ; constants
+  ; (:constants undefined_posture tucked_posture transport_posture - arm_posture)
+  ; (:constants nothing - object)
+  ; (:constants true false - boolean)
+)
+
+(:htn
+  :tasks (and ;(mobipick_move_arm transport_posture extended false))
+              (m_mobipick_move_arm extended false))
+  :ordering ( )
+  :constraints ( )
+)
+
+(:init 
+	(mobipick_at start)
+  (mobipick_has_arm_posture transport_posture)
+)
+
+)
