@@ -24,7 +24,7 @@
     (worker_at ?worker - human ?human_area - area)
 
     ; hack, encode tasks as predicates
-    ; (mobipick_drive ?goal_wp - area)
+    (mobipick_drive ?goal_wp - area)
   )
 
   ;(:constants ?undefined_posture ?tucked_posture ?transport_posture - arm_posture)
