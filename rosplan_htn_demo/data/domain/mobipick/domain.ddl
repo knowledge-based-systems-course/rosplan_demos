@@ -36,6 +36,7 @@
   mobipick_get_object      # ?obj ?grasp_type
   mobipick_put_object      # ?obj ?area
   mobipick_move_object     # ?obj ?area
+  mobipick_bring_object    # ?obj ?worker
 )
 
 ################################
@@ -296,7 +297,7 @@
  (Constraint Before(s1,s2))
 )
 
-######### mobipick_get_object #######m
+######### mobipick_get_object #######
 
 # TODO maybe add "empty_hand"
 
@@ -322,7 +323,7 @@
  (Ordering s2 s3)
 )
 
-######### mobipick_put_object #######m
+######### mobipick_put_object #######
 
 (:method
  (Head mobipick_put_object(?obj ?area))
@@ -336,7 +337,7 @@
  (Ordering s1 s2)
 )
 
-######### mobipick_move_object #######m
+######### mobipick_move_object #######
 
 (:method
  (Head mobipick_move_object(?obj ?area))
@@ -345,4 +346,19 @@
  (Constraint Starts(s1,task))
  (Constraint Before(s1,s2))
  (Ordering s1 s2)
+)
+
+######### mobipick_bring_object #######
+
+(:method
+ (Head mobipick_bring_object(?obj ?worker))
+ (Pre p1 worker_at(?worker ?worker_wp))
+ (Sub s1 mobipick_get_object(?obj))
+ (Sub s2 mobipick_drive(?obj ?worker_wp))
+ (Sub s3 !mobipick_handover_give(?obj ?worker))
+ (Constraint Starts(s1,task))
+ (Constraint Before(s1,s2))
+ (Constraint Before(s2,s3))
+ (Ordering s1 s2)
+ (Ordering s2 s3)
 )
